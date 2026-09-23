@@ -1,34 +1,33 @@
-# DECO2500 Journey Prototype — Revision 4
+# DECO2500 Journey Prototype — Revision 5
 
-Public review URL: https://edenyzh.github.io/deco2500-journey-prototype/
+Review URL: https://edenyzh.github.io/deco2500-journey-prototype/
 
-This revision implements the three September 23 screen sketches across all journey and route variants. The existing 81 stop-detail screens are retained with their original text, layout, shapes and styles; their clocks and timetable values continue to update in context.
+Extract the complete ZIP and open `index.html` in a current Edge, Chrome or Safari browser. Keep the HTML, CSS and JavaScript files together. To share with other people, use the public URL above.
 
-## Open locally
+## This revision
 
-Extract the entire archive and open `index.html` in a current browser such as Edge or Chrome. Keep the five `.js`/`.css`/HTML files together. No account or installation is needed. For sharing, use the public URL above rather than a local file path.
+- A fresh journey defaults to Current location, which remains selectable in the From menu. An explicitly chosen origin is retained during the session.
+- From and To selections are black and bold. Expected arrival time is darker, slightly heavier and right-aligned near the larger, bold time field.
+- Optional expected arrival time is a filter only. It never changes a route's calculated arrival or its bus timetable. A route remains visible when its destination ETA is within 30 minutes before or after the expected time, including either boundary.
+- The filtered list, map routes and available-route count always agree. With no matching routes, the user can choose another time or explicitly clear the limit to view all routes for that journey.
+- Route and stop comparison headings are wider, single-line green buttons. Both open a plain explanation page describing walking to the boarding stop, waiting, bus travel and the final leg from the alighting stop to the destination.
+- Single-stop detail pages also have an estimated arrival time and explanation button in their previously unused bottom area. The original content above it is retained.
+- The explanation page returns to its source screen without losing the journey or expected-time selection.
 
-## Behaviour
+## Data and calculation
 
-- Home and route selection share From, To and optional expected arrival time. Location menus are mutually exclusive. Identical locations are rejected.
-- Expected time offers each whole minute strictly after the displayed current time, up to four hours ahead. Overnight options say “tomorrow”. Leaving it empty is allowed. Expired selections are cleared with a message.
-- Sample coverage provides one, two or three routes depending on the journey. The map, count and cards use the same route list.
-- Route cards sort by estimated destination arrival, which is the earliest estimate among that route's three stops. Walking distance numbers are larger and bold.
-- Stop cards retain descending catch-probability order, based on crowding and walking time. Red, bold “Next bus” times describe arrival at the stop. The separate green column describes estimated arrival at the destination.
-- The sample model selects service timing around an optional target arrival. Destination estimates use a service reachable on foot and stay within 30 minutes either side of the selected expected time.
-- The session runs for three minutes, persists across page navigation and reloads, then pauses. “Start again” resets its clock. The four-hour selection window follows this displayed demonstration clock.
+This is a three-minute interactive prototype, with replaceable sample route coverage, distances, timetable and probabilities. Maps are schematic. No live transit feed or verified journey routing is connected.
 
-## Editable source and assumptions
+`model.js` computes each stop's ETA independently of the expected-time input. It uses the first service reachable after walking and a boarding buffer, then adds the sample bus ride and final walk. ETAs are rounded up to whole minutes. A route's ETA is the earliest of its three stops. Routes sort by destination ETA; stops sort by catch probability based on crowding and walking time.
 
-`model.js` contains replaceable sample coverage, ride durations, arrival offsets and validation rules. `app.js` contains the three redesigned screens and SVG maps. `styles.css` contains their presentation. `detail-data.js` losslessly packages the original stop-detail nodes using gzip/base64; the browser decompresses it locally.
+The expected-time selector supports the next whole minute through four hours after the displayed demo clock, including midnight crossings. It may be left empty. An expired selection clears with a message. The session pauses after three minutes; Start again resets it. Navigation and reloads preserve session state.
 
-The maps are schematic drawings following the supplied sketches' visual language. Coverage, walking distances, service times, destination estimates and probabilities are demonstration data, not verified routing or a live transit feed. Existing location spelling “Towoong” is retained from the baseline.
+`detail-data.js` losslessly contains the original 81 detail-screen node trees. The new ETA row is added separately at runtime. This package updates the web prototype, not the local Figma document.
 
 ## Validation
 
-- Browser: all nine journey combinations and 54 detail flows reachable from their current route lists; shared selection state, map/card counts, ordering, minimum-stop ETA, midnight range, expiry, three-minute freeze, reload and restart.
-- Model: 38,880 combinations across optional target minutes, journeys, routes, stops and elapsed times; all destination estimates within the requested ±30-minute range.
-- Visual checks at 390 px and 320 px; no horizontal page overflow.
-- All 81 detail node trees are copied without content or geometry edits from the user's existing Revision 3 baseline.
-
-This package updates the web prototype. It does not alter the local Figma document.
+- Default origin and style checks; expected-time filtering without modifying ETA values.
+- Partial matches, no matches, explicit recovery, map/list/count agreement and exact +/-30-minute boundaries.
+- All nine journey combinations and 54 reachable detail flows, including explanation/back navigation.
+- 6,480 model scenarios spanning journeys, target times and elapsed demo time; final walking leg included.
+- Three-minute freeze and reload/restart; visual checks at 390 px and 320 px with no horizontal overflow.
