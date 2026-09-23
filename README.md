@@ -1,10 +1,12 @@
-# DECO2500 Journey Prototype — Revision 8.3
+# DECO2500 Journey Prototype — Revision 8.4
 
 Review URL: https://edenyzh.github.io/deco2500-journey-prototype/
 
 Extract the complete ZIP and open `index.html` in a current Edge, Chrome or Safari browser. Keep the HTML, CSS and JavaScript files together. To share with other people, use the public URL above.
 
 ## This revision
+
+- Stop details rename the inputs to Platform crowding level and Crowding levels on the arriving bus. The section heading is now Combined crowding level: N/10, keeping the previous heading typography. N is the equal-weight mean of the two current input levels, rounded to the nearest integer (halves round up). The separate combined-value row is removed.
 
 - Nearby-stop comparison headings now sit side by side in a single vertically centred row. The catch-chance heading wraps within the left column; the clickable estimated-arrival label stays on one line in the right column.
 

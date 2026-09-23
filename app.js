@@ -63,10 +63,12 @@ function drawStopMap(route,number){
 }
 function detailCrowding(snapshot){
  const group=snapshot.children.find(n=>n.name==='Crowding breakdown');
- return ['Stop crowding','Bus crowding','Combined crowding'].map(name=>{
+ const levels=[['Stop crowding','Platform crowding level'],['Bus crowding','Crowding levels on the arriving bus']].map(([name,label])=>{
   const row=group.children.find(n=>n.name===name);
-  return {label:row.children.find(n=>n.name==='Label').text,value:row.children.find(n=>n.name==='Value').text};
+  return {label,value:Number(row.children.find(n=>n.name==='Value').text.split('/')[0].trim())};
  });
+ // Both 1–10 factors have equal weight; display the nearest whole level.
+ return {levels,combined:Math.round((levels[0].value+levels[1].value)/2)};
 }
 function stopDetail(snapshot){
  const s=model.stop(journey(),state.route,state.stop,now()),crowding=detailCrowding(snapshot);
@@ -77,7 +79,7 @@ function stopDetail(snapshot){
  <div class="detail-body">
  <section class="boarding-card" aria-label="Chance to catch the next bus"><strong data-name="Probability"></strong><span>chance to catch<br>the next bus</span></section>
  <section class="walking-card" aria-label="Walk to this stop"><h2 data-name="Walking distance">Walking distance: ${s.metres} m</h2><p data-name="Estimated walking time">Estimated walking time: ${s.walkMinutes} min</p><p data-name="Walking arrival"></p></section>
- <section class="crowding-section" aria-labelledby="crowding-title"><h2 id="crowding-title">Crowding at this stop</h2><dl>${crowding.map(c=>`<div><dt>${esc(c.label)}</dt><dd>${esc(c.value)}</dd></div>`).join('')}</dl><p class="scale-note">1 = quiet · 10 = very crowded</p></section>
+ <section class="crowding-section" aria-labelledby="crowding-title"><h2 id="crowding-title">Combined crowding level: ${crowding.combined}/10</h2><dl>${crowding.levels.map(c=>`<div><dt>${esc(c.label)}</dt><dd>${c.value} / 10</dd></div>`).join('')}</dl><p class="scale-note">1 = quiet · 10 = very crowded</p></section>
  <section class="arrivals-section" aria-labelledby="arrivals-title"><h2 id="arrivals-title">Next arrivals at this stop</h2><p class="arrival-times" data-name="Arrival times"></p><p class="next-bus" data-name="Arrival countdown"></p></section>
  <button class="primary" data-action="compare-stops">Compare other stops</button>
  </div>`;
