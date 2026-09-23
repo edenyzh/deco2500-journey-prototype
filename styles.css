@@ -29,3 +29,9 @@
 .no-routes .primary{font-size:14px;margin-top:20px}
 .secondary{min-height:44px;background:transparent;color:#216643;border:0;text-decoration:underline;font-size:14px;margin-top:8px;padding:9px}
 @media(max-width:359px){.expected-field label{font-size:12px}.eta-heading{font-size:12px}.nearby .comparison-heading h2{font-size:18px}}
+.late-routes-notice{padding:12px 14px;margin:0 0 14px;border:1px solid #dde4e1;border-radius:6px;background:#f5f8f6;font-size:13px;line-height:1.5}
+.late-routes-notice p{margin:0}
+.late-routes-notice .secondary{margin-top:4px;padding:5px 0;min-height:36px;text-align:left;font-size:13px}
+.comparison-row[data-late="true"] .eta{color:#8b4f00}
+.late-arrival{display:block;font-size:10px;font-weight:500;letter-spacing:0;line-height:1.3;margin-top:3px}
+.late-arrival:empty{display:none}

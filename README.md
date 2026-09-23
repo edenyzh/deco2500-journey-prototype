@@ -1,4 +1,4 @@
-# DECO2500 Journey Prototype — Revision 6
+# DECO2500 Journey Prototype — Revision 7
 
 Review URL: https://edenyzh.github.io/deco2500-journey-prototype/
 
@@ -8,8 +8,9 @@ Extract the complete ZIP and open `index.html` in a current Edge, Chrome or Safa
 
 - A fresh journey defaults to Current location, which remains selectable in the From menu. An explicitly chosen origin is retained during the session.
 - From and To selections are black and bold. Expected arrival time is darker, slightly heavier and right-aligned near the larger, bold time field.
-- Optional expected arrival time is a filter only. It never changes a route's calculated arrival or its bus timetable. All routes arriving early remain visible. Only routes arriving more than 30 minutes after the expected time are hidden; exactly 30 minutes late remains visible.
-- The filtered list, map routes and available-route count always agree. With no matching routes, the user can choose another time or explicitly clear the limit to view all routes for that journey.
+- Optional expected arrival time is a filter only. It never changes a route's calculated arrival or its bus timetable. All routes arriving early remain visible. Only routes arriving more than 5 minutes after the expected time are hidden; exactly 5 minutes late remains visible.
+- Whenever routes are hidden, the user can explicitly choose “Show later routes”, including when some routes still match. The original expected time stays selected. Revealed late routes show their lateness in minutes and can be hidden again. The map and route count follow the visible list.
+- When all routes are hidden, an empty-state prompt offers “Show later routes” or “Choose another time”. Changing the expected time or journey resets the option to hide late routes. The user's viewing choice otherwise survives back navigation and reloads.
 - Route and stop comparison headings are wider, single-line green buttons. They open a plain explanation page with the user's exact copy: “This is the time you are expected to reach your final destination, starting from your current location, including transit time to the platform and to the destination after getting off.”
 - Single-stop detail pages also have an estimated arrival time and explanation button in their previously unused bottom area. The original content above it is retained.
 - The explanation page returns to its source screen without losing the journey or expected-time selection.
@@ -27,7 +28,7 @@ The expected-time selector supports the next whole minute through four hours aft
 ## Validation
 
 - Default origin and style checks; expected-time filtering without modifying ETA values.
-- Revision 6 verifies unrestricted early arrivals, the inclusive 30-minutes-late boundary, later arrivals excluded, map/list/count agreement, no-match recovery and exact explanation copy.
+- Revision 7 verifies unrestricted early arrivals, the inclusive 5-minutes-late boundary, prompts for partial/all hidden results, explicit show/hide, preserved expected time, stable ETAs, selection reset and map/list/count agreement.
 - All nine journey combinations and 54 reachable detail flows, including explanation/back navigation.
-- Earlier model checks cover journeys, target times and elapsed demo time; final walking leg included. Revision 6 changes filtering only, with unchanged ETA calculations.
+- Earlier model checks cover journeys, target times and elapsed demo time; final walking leg included. Revision 7 changes filtering and viewing options, with unchanged ETA calculations and explanation copy.
 - Three-minute freeze and reload/restart; visual checks at 390 px and 320 px with no horizontal overflow.
