@@ -89,3 +89,9 @@
 .clock{font-size:18px;font-weight:650;letter-spacing:-.5px;line-height:1.3}
 .topbar .clock{align-self:flex-start}
 @media(max-width:359px){.clock{font-size:17px}}
+
+/* Keep the two nearby-stop headings together in one aligned row. */
+.nearby .comparison-heading{display:grid;grid-template-columns:minmax(0,1fr) max-content;gap:10px;align-items:center}
+.nearby .comparison-heading h2{flex-basis:auto;font-size:16px;line-height:1.35;text-wrap:balance}
+.nearby .comparison-heading .eta-heading{margin-left:0;font-size:11px;padding:10px 8px;gap:5px}
+@media(max-width:359px){.nearby .comparison-heading{gap:8px}.nearby .comparison-heading h2{font-size:14px}}

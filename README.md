@@ -1,10 +1,12 @@
-# DECO2500 Journey Prototype — Revision 8.2
+# DECO2500 Journey Prototype — Revision 8.3
 
 Review URL: https://edenyzh.github.io/deco2500-journey-prototype/
 
 Extract the complete ZIP and open `index.html` in a current Edge, Chrome or Safari browser. Keep the HTML, CSS and JavaScript files together. To share with other people, use the public URL above.
 
 ## This revision
+
+- Nearby-stop comparison headings now sit side by side in a single vertically centred row. The catch-chance heading wraps within the left column; the clickable estimated-arrival label stays on one line in the right column.
 
 - Every map has softly rounded 12 px corners. Every page uses the same top-right Current time position and typography as stop details: 18 px and weight 650, or 17 px on narrow screens. The clock keeps its existing red colour and HH:MM:SS format.
 
