@@ -8,7 +8,7 @@ const MINUTE=60000,DURATION=180000;
 function limits(now){return {min:(Math.floor(now/MINUTE)+1)*MINUTE,max:Math.floor((now+240*MINUTE)/MINUTE)*MINUTE};}
 function validExpected(value,now){const range=limits(now);return Number.isFinite(value)&&value>=range.min&&value<=range.max&&value%MINUTE===0;}
 function chance(capacity,walk,remaining,rules){const uncertainty=Math.max(rules.minimumUncertaintyMinutes,walk*rules.walkingUncertaintyRatio),earliest=Math.max(0,walk-uncertainty),latest=walk+uncertainty;return Math.round(capacity*Math.max(0,Math.min(1,(remaining-rules.boardingBufferMinutes-earliest)/(latest-earliest))));}
-function filterRoutes(routes,expected){return expected==null?routes:routes.filter(route=>Math.abs(route.etaMs-expected)<=30*MINUTE);}
+function filterRoutes(routes,expected){return expected==null?routes:routes.filter(route=>route.etaMs<=expected+30*MINUTE);}
 function createModel(plan,anchor){
  const canonical=new Map(plan.entries.map(e=>[e.journey+'/'+e.route,e]));
  function stop(journey,route,number,now){

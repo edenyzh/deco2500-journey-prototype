@@ -1,4 +1,4 @@
-# DECO2500 Journey Prototype — Revision 5
+# DECO2500 Journey Prototype — Revision 6
 
 Review URL: https://edenyzh.github.io/deco2500-journey-prototype/
 
@@ -8,9 +8,9 @@ Extract the complete ZIP and open `index.html` in a current Edge, Chrome or Safa
 
 - A fresh journey defaults to Current location, which remains selectable in the From menu. An explicitly chosen origin is retained during the session.
 - From and To selections are black and bold. Expected arrival time is darker, slightly heavier and right-aligned near the larger, bold time field.
-- Optional expected arrival time is a filter only. It never changes a route's calculated arrival or its bus timetable. A route remains visible when its destination ETA is within 30 minutes before or after the expected time, including either boundary.
+- Optional expected arrival time is a filter only. It never changes a route's calculated arrival or its bus timetable. All routes arriving early remain visible. Only routes arriving more than 30 minutes after the expected time are hidden; exactly 30 minutes late remains visible.
 - The filtered list, map routes and available-route count always agree. With no matching routes, the user can choose another time or explicitly clear the limit to view all routes for that journey.
-- Route and stop comparison headings are wider, single-line green buttons. Both open a plain explanation page describing walking to the boarding stop, waiting, bus travel and the final leg from the alighting stop to the destination.
+- Route and stop comparison headings are wider, single-line green buttons. They open a plain explanation page with the user's exact copy: “This is the time you are expected to reach your final destination, starting from your current location, including transit time to the platform and to the destination after getting off.”
 - Single-stop detail pages also have an estimated arrival time and explanation button in their previously unused bottom area. The original content above it is retained.
 - The explanation page returns to its source screen without losing the journey or expected-time selection.
 
@@ -27,7 +27,7 @@ The expected-time selector supports the next whole minute through four hours aft
 ## Validation
 
 - Default origin and style checks; expected-time filtering without modifying ETA values.
-- Partial matches, no matches, explicit recovery, map/list/count agreement and exact +/-30-minute boundaries.
+- Revision 6 verifies unrestricted early arrivals, the inclusive 30-minutes-late boundary, later arrivals excluded, map/list/count agreement, no-match recovery and exact explanation copy.
 - All nine journey combinations and 54 reachable detail flows, including explanation/back navigation.
-- 6,480 model scenarios spanning journeys, target times and elapsed demo time; final walking leg included.
+- Earlier model checks cover journeys, target times and elapsed demo time; final walking leg included. Revision 6 changes filtering only, with unchanged ETA calculations.
 - Three-minute freeze and reload/restart; visual checks at 390 px and 320 px with no horizontal overflow.
