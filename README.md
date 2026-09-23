@@ -1,4 +1,4 @@
-# DECO2500 Journey Prototype — Revision 8.1
+# DECO2500 Journey Prototype — Revision 8.2
 
 Review URL: https://edenyzh.github.io/deco2500-journey-prototype/
 
@@ -6,7 +6,7 @@ Extract the complete ZIP and open `index.html` in a current Edge, Chrome or Safa
 
 ## This revision
 
-- The stop-detail Current time now matches the estimated arrival value: 18 px and weight 650, or 17 px on narrow screens.
+- Every map has softly rounded 12 px corners. Every page uses the same top-right Current time position and typography as stop details: 18 px and weight 650, or 17 px on narrow screens. The clock keeps its existing red colour and HH:MM:SS format.
 
 - Every single-stop detail screen follows the supplied September 23 sketch, across all journeys and bus routes. The current clock and clickable destination ETA sit at the top right beside Back.
 - The map magnifies the neighbourhood between You and the selected stop. It shows only that stop, its blue dotted walking connection and its pink bus route. Positions and the walking connection match the nearby-stops map. Each selected stop gets its own crop; no destination marker or unrelated stop markers distract from the walk.
