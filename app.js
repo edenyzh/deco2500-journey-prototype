@@ -43,8 +43,48 @@ function drawMap(kind,route){const routes=kind==='plan'?[]:kind==='nearby'?[rout
 function topbar(back){return `<div class="topbar">${back?`<button class="back" data-action="back">‹ Back</button>`:''}<span class="clock" data-name="Live clock"></span></div>`;}
 function etaHeading(){return '<button class="eta-heading" data-action="eta-info" aria-label="About estimated arrival time"><span>Estimated arrival time</span><span class="info-icon" aria-hidden="true">i</span></button>';}
 function arrivalExplanation(){return `${topbar(true)}<h1 tabindex="-1">Estimated arrival time</h1><div class="arrival-explanation"><p>This is the time you are expected to reach your final destination, starting from your current location, including transit time to the platform and to the destination after getting off.</p></div>`;}
+// The selected stop uses the same coordinates and walking connection as its comparison map.
+function drawStopMap(route,number){
+ const points=routePoints[route],you=[36,64],stop=points[number-1],ratio=350/240;
+ const width=Math.max(180,Math.abs(stop[0]-you[0])+70,(Math.abs(stop[1]-you[1])+62)*ratio),height=width/ratio;
+ const left=Math.max(0,Math.min(350-width,(you[0]+stop[0])/2-width/2)),top=Math.max(0,Math.min(278-height,(you[1]+stop[1])/2-height/2));
+ const zoom=350/width,unit=1/zoom,[x,y]=stop;
+ // Labels and markers stay readable while the underlying neighbourhood is magnified.
+ const labelY=y+21*unit,labelX=x+8*unit;
+ return `<div class="map stop-map"><svg viewBox="${left} ${top} ${width} ${height}" role="img" aria-label="Walking route from ${esc(M.LOCATIONS[state.from])} to Stop ${number} for Bus ${route}" data-stop="${number}" data-route="${route}" data-zoom="${zoom}">
+ ${basemap()}
+ <polyline class="bus-line" data-route="${route}" points="${points.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#f51bb6" stroke-width="5.5" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>
+ <path class="walking-path" d="M36 64Q${x-13} ${Math.max(32,y-25)} ${x} ${y}" fill="none" stroke="white" stroke-width="4.5" vector-effect="non-scaling-stroke"/>
+ <path class="walking-path" d="M36 64Q${x-13} ${Math.max(32,y-25)} ${x} ${y}" fill="none" stroke="#4034e6" stroke-width="2.5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>
+ <circle class="selected-stop" cx="${x}" cy="${y}" r="${6.5*unit}" fill="#4034e6" stroke="white" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+ <text class="selected-stop-label" x="${labelX}" y="${labelY}" fill="#302ccc" font-size="${13*unit}" font-weight="700" paint-order="stroke" stroke="white" stroke-width="${3*unit}">Stop ${number}</text>
+ <g class="you-marker" transform="translate(36 64) scale(${unit})"><path d="M0 -11L10 10L0 5L-10 10Z" fill="#ed3c36" stroke="white" stroke-width="1.5"/><text x="15" y="3" fill="#bd302c" font-size="12" font-weight="700" paint-order="stroke" stroke="white" stroke-width="3">You</text></g>
+ </svg></div>`;
+}
+function detailCrowding(snapshot){
+ const group=snapshot.children.find(n=>n.name==='Crowding breakdown');
+ return ['Stop crowding','Bus crowding','Combined crowding'].map(name=>{
+  const row=group.children.find(n=>n.name===name);
+  return {label:row.children.find(n=>n.name==='Label').text,value:row.children.find(n=>n.name==='Value').text};
+ });
+}
+function stopDetail(snapshot){
+ const s=model.stop(journey(),state.route,state.stop,now()),crowding=detailCrowding(snapshot);
+ const mapLegend=`<div class="legend">${[['you','You'],['stops','Stops'],['route','Bus route']].map(([key,title])=>`<span class="${key}"><svg viewBox="0 0 16 16" aria-hidden="true">${symbols[key]}</svg>${title}</span>`).join('')}</div>`;
+ return `<header class="detail-header"><button class="back" data-action="back">‹ Back</button><span class="clock" data-name="Live clock"></span><div class="detail-eta">${etaHeading()}${etaMarkup()}</div></header>
+ <h1 tabindex="-1">Bus ${state.route} · Stop ${state.stop}</h1>
+ ${drawStopMap(state.route,state.stop)}${mapLegend}
+ <div class="detail-body">
+ <section class="boarding-card" aria-label="Chance to catch the next bus"><strong data-name="Probability"></strong><span>chance to catch<br>the next bus</span></section>
+ <section class="walking-card" aria-label="Walk to this stop"><h2 data-name="Walking distance">Walking distance: ${s.metres} m</h2><p data-name="Estimated walking time">Estimated walking time: ${s.walkMinutes} min</p><p data-name="Walking arrival"></p></section>
+ <section class="crowding-section" aria-labelledby="crowding-title"><h2 id="crowding-title">Crowding at this stop</h2><dl>${crowding.map(c=>`<div><dt>${esc(c.label)}</dt><dd>${esc(c.value)}</dd></div>`).join('')}</dl><p class="scale-note">1 = quiet · 10 = very crowded</p></section>
+ <section class="arrivals-section" aria-labelledby="arrivals-title"><h2 id="arrivals-title">Next arrivals at this stop</h2><p class="arrival-times" data-name="Arrival times"></p><p class="next-bus" data-name="Arrival countdown"></p></section>
+ <button class="primary" data-action="compare-stops">Compare other stops</button>
+ </div>`;
+}
+
 function render(focusHeading=false){state.open=null;phone.className=state.screen==='detail'?'detail':'';phone.removeAttribute('style');phone.dataset.key=currentKey;lastMinute=-1;
- if(state.screen==='detail'){const key=`${journey()}-detail-${state.route}-${state.stop}-0`,s=details.get(key);if(!s){go('start');return;}phone.replaceChildren(renderNode(s,true));const arrival=document.createElement('div');arrival.className='detail-eta';arrival.innerHTML=etaHeading()+etaMarkup();phone.firstElementChild.append(arrival);fitDetail();}
+ if(state.screen==='detail'){const key=`${journey()}-detail-${state.route}-${state.stop}-0`,snapshot=details.get(key);if(!snapshot){go('start');return;}phone.innerHTML=`<section class="screen stop-detail">${stopDetail(snapshot)}</section>`;}
  else {let body='';if(state.screen==='plan'){body=`${topbar(false)}<h1 tabindex="-1">Plan your journey</h1>${drawMap('plan')}${legend(false)}${locationField('from','Start your journey from')}${locationField('to','To')}${expectedField()}${validation()}<button class="primary" data-action="find">Find bus routes</button>`;}
  else if(state.screen==='routes'){body=`${topbar(true)}<h1 tabindex="-1">Choose a bus route</h1><div class="journey-fields">${locationField('from','From')}${locationField('to','To')}</div>${expectedField()}${validation()}${drawMap('routes')}${legend()}<div class="comparison-heading"><h2><span class="route-count">${visibleRoutes().length}</span><span class="route-count-label">available routes</span></h2>${etaHeading()}</div><div id="late-routes-notice" class="late-routes-notice" hidden></div><div class="comparison-list" id="route-list"></div>`;}
  else if(state.screen==='eta-info'){body=arrivalExplanation();}
@@ -78,7 +118,8 @@ phone.addEventListener('click',event=>{const action=event.target.closest('[data-
  if(a==='open'){const field=action.dataset.field,was=state.open===field;closeMenus();if(!was){state.open=field;$('#'+field+'-menu').hidden=false;action.setAttribute('aria-expanded','true');}return;}
  if(a==='location'){const field=action.dataset.field;if(state[field]!==action.dataset.value)state.includeLate=false;state[field]=action.dataset.value;state.error=null;persist();if(state.screen==='routes'&&validJourney()){currentKey='routes-'+journey();history.replaceState(null,'','#'+currentKey);}render();$('#'+field+'-trigger')?.focus({preventScroll:true});return;}
  if(a==='find'){if(!state.from||!state.to){state.error='missing';render();return;}if(state.from===state.to){render();return;}go('routes-'+journey());}
- if(a==='back'){go(state.screen==='eta-info'?state.infoReturn:state.screen==='routes'?'start':'routes-'+journey());}
+ if(a==='back'){go(state.screen==='eta-info'?state.infoReturn:state.screen==='detail'?`${journey()}-compare-${state.route}-0`:state.screen==='routes'?'start':'routes-'+journey());}
+ if(a==='compare-stops')go(`${journey()}-compare-${state.route}-0`);
  if(a==='eta-info')go('arrival-info/'+currentKey);
  if(a==='show-late'||a==='hide-late'){state.includeLate=a==='show-late';persist();update();const toggle=$('#late-routes-notice button')||$('.no-routes [data-action="show-late"]');toggle?.focus({preventScroll:true});}
  if(a==='choose-time')$('#expected-time')?.focus();
@@ -89,14 +130,8 @@ phone.addEventListener('change',event=>{if(event.target.id!=='expected-time')ret
 phone.addEventListener('focusin',event=>{if(event.target.id==='expected-time')closeMenus();});
 document.addEventListener('click',event=>{if(!event.target.closest('.field'))closeMenus();});
 phone.addEventListener('keydown',event=>{if(event.key==='Escape'&&state.open){const field=state.open;closeMenus();$('#'+field+'-trigger').focus();event.preventDefault();return;}const trigger=event.target.closest('.location-trigger');if(trigger&&['ArrowDown','ArrowUp'].includes(event.key)){event.preventDefault();if(state.open!==trigger.dataset.field)trigger.click();$('#'+trigger.dataset.field+'-menu').querySelector('button').focus();return;}const option=event.target.closest('.location-option');if(option&&['ArrowDown','ArrowUp','Home','End'].includes(event.key)){event.preventDefault();const options=[...option.parentNode.children],index=options.indexOf(option),next=event.key==='Home'?0:event.key==='End'?options.length-1:(index+(event.key==='ArrowDown'?1:-1)+options.length)%options.length;options[next].focus();return;}if(event.key==='Enter'||event.key===' '){const target=event.target.closest('.node[data-target]');if(target){event.preventDefault();target.click();}}});
-function renderNode(n,root=false){if(!n.visible)return document.createComment('hidden');const el=document.createElement('div');el.className='node'+(n.kind==='text'?' text':'')+(n.kind==='vector'?' vector':'')+(n.scroll?' scroll':'');el.dataset.name=n.name;el.dataset.id=n.id;Object.assign(el.style,{left:(root?0:n.x)+'px',top:(root?0:n.y)+'px',width:n.w+'px',height:n.h+'px',borderRadius:(n.radius||0)+'px',overflow:n.clip?'hidden':'visible'});
- if(n.kind==='text'){Object.assign(el.style,{fontFamily:'"'+n.fontFamily+'", Arial, "Microsoft YaHei", sans-serif',fontSize:n.fontSize+'px',fontWeight:n.weight,lineHeight:n.lineHeight+'px',textAlign:(n.textAlign||'LEFT').toLowerCase(),color:n.fill||'#292929'});if(n.runs){for(const r of n.runs){const span=document.createElement('span');span.textContent=r.text;if(r.fill)span.style.color=r.fill;if(r.weight)span.style.fontWeight=r.weight;el.append(span);}}else el.textContent=n.text;}
- else if(n.kind==='vector'){const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${n.w} ${n.h}`);for(const v of n.paths){const p=document.createElementNS(ns,'path');p.setAttribute('d',v.d);p.setAttribute('fill',v.fill||'none');p.setAttribute('fill-rule',v.rule==='ODD'?'evenodd':'nonzero');svg.append(p);}el.append(svg);}
- else {if(n.fill)el.style.background=n.fill;if(n.border)el.style.border=`${n.borderWidth||1}px solid ${n.border}`;if(n.type==='ELLIPSE')el.style.borderRadius='50%';}
- if(n.target&&DATA.targets[n.target]){el.dataset.target=n.target;el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label',n.name);}for(const c of n.children||[])el.append(renderNode(c));return el;}
-function fitDetail(){if(state.screen!=='detail')return;const scale=Math.min(1,innerWidth/390);phone.style.width=390*scale+'px';phone.style.height=844*scale+'px';if(phone.firstElementChild){phone.firstElementChild.style.transformOrigin='top left';phone.firstElementChild.style.transform='scale('+scale+')';}}
 function startTimer(){if(timer)clearInterval(timer);timer=setInterval(update,1000);update();}
 $('#restart').addEventListener('click',()=>{anchor=Date.now();state.includeLate=false;if(state.expected&&!M.validExpected(state.expected,anchor))state.expected=null;rebuild();render();startTimer();});
-addEventListener('hashchange',navigate);addEventListener('resize',fitDetail);addEventListener('pageshow',update);addEventListener('focus',update);document.addEventListener('visibilitychange',()=>{if(!document.hidden)update();});
-window.PROTOTYPE={version:7,data:DATA,get state(){return {...state};},get anchor(){return anchor;},get now(){return now();},get model(){return model;},get current(){return {key:currentKey};},updateClock:update,navigate:go};navigate();startTimer();
+addEventListener('hashchange',navigate);addEventListener('pageshow',update);addEventListener('focus',update);document.addEventListener('visibilitychange',()=>{if(!document.hidden)update();});
+window.PROTOTYPE={version:8,data:DATA,get state(){return {...state};},get anchor(){return anchor;},get now(){return now();},get model(){return model;},get current(){return {key:currentKey};},updateClock:update,navigate:go};navigate();startTimer();
 })().catch(error=>{console.error(error);document.querySelector('#phone').innerHTML='<p class="loading">The prototype could not open. Please reload the page.</p>';});
